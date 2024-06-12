@@ -1,0 +1,237 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+    int data;
+    struct node *link;
+};
+
+// Function prototypes
+void add_Item(struct node **head);
+void startList(struct node **head, int item);
+void endList(struct node **head, int num);
+void specific(struct node **head, int num, int position);
+void displayList(struct node *head);
+void deleteList(struct node **head);
+void endProg();
+void deleteItem(struct node **head, int item);
+
+// Function to add an item to the list
+void add_Item(struct node **head) {
+    int num;
+    int choice;
+    int position;
+    printf("Enter a Digit: ");
+    scanf("%d", &num);
+
+    if (*head == NULL) {
+        printf("\nList is empty. Adding item at the start.\n\n");
+        startList(head, num);
+        return;
+    }
+
+    printf("\nPlease enter the item to be added\n");
+    printf("\nWhere to add the item?\n");
+    printf("[1] Start of the List\n[2] End of the List\n[3] Specific position\n[0] Cancel\nEnter choice: ");
+    scanf("%d", &choice);
+
+    switch (choice) {
+        case 0:
+            endProg();
+            break;
+        case 1:
+            startList(head, num);
+            break;
+        case 2:
+            endList(head, num);
+            break;
+        case 3:
+            printf("Enter the position: ");
+            scanf("%d", &position);
+            specific(head, num, position);
+            break;
+        default:
+            printf("Invalid choice.\n");
+    }
+}
+
+// Function to add an item at the start of the list
+void startList(struct node **head, int item) {
+    struct node *newNode = (struct node *)malloc(sizeof(struct node));
+    if (newNode == NULL) {
+        printf("Memory allocation failed.\n");
+        return;
+    }
+
+    newNode->data = item;
+    newNode->link = *head;
+    *head = newNode;
+    printf("\nItem added to the start of the list.\n\n");
+}
+
+// Function to add an item at the end of the list
+void endList(struct node **head, int num) {
+    struct node *temp = *head;
+    struct node *newNode = (struct node *)malloc(sizeof(struct node));
+    if (newNode == NULL) {
+        printf("\nMemory allocation failed.\n\n");
+        return;
+    }
+
+    newNode->data = num;
+    newNode->link = NULL;
+
+    if (*head == NULL) {
+        *head = newNode;
+    } else {
+        while (temp->link != NULL) {
+            temp = temp->link;
+        }
+        temp->link = newNode;
+    }
+}
+
+// Function to add an item at a specific position in the list
+void specific(struct node **head, int num, int position) {
+    struct node *newNode = (struct node *)malloc(sizeof(struct node));
+    if (newNode == NULL) {
+        printf("\nMemory allocation failed.\n\n");
+        return;
+    }
+    newNode->data = num;
+
+    if (position <= 0) {
+        printf("\nInvalid position.\n\n");
+        free(newNode);
+        return;
+    }
+
+    if (position == 1) {
+        newNode->link = *head;
+        *head = newNode;
+        printf("\nItem added at position 1.\n\n");
+        return;
+    }
+
+    struct node *temp = *head;
+    int currentPosition = 1;
+    while (temp != NULL && currentPosition < position - 1) {
+        temp = temp->link;
+        currentPosition++;
+    }
+
+    if (temp == NULL) {
+        printf("\nPosition not found. Adding item to the end of the list.\n\n");
+        free(newNode);
+        return;
+    }
+
+    newNode->link = temp->link;
+    temp->link = newNode;
+    printf("\nItem added at position %d.\n\n", position);
+}
+
+// Function to delete an item from the list
+void deleteItem(struct node **head, int item) {
+    struct node *temp = *head;
+    struct node *prev = NULL;
+    int found = 0;
+
+    if (*head == NULL) {
+        printf("\nThe list is empty!\n\n");
+        return;
+    }
+
+    while (temp != NULL) {
+        if (temp->data == item) {
+            found = 1;
+            break;
+        }
+        prev = temp;
+        temp = temp->link;
+    }
+
+    if (found) {
+        if (prev == NULL) {
+            *head = temp->link;
+            free(temp);
+        } else {
+            prev->link = temp->link;
+            free(temp);
+        }
+        printf("\nThe element %d has been deleted.\n\n", item);
+    } else {
+        printf("\nThe list does not contain the specified element.\n\n");
+    }
+}
+
+// Function to display the list
+void displayList(struct node *head) {
+    if (head == NULL) {
+        printf("\nThe list is empty!\n\n");
+        return;
+    }
+    struct node *temp = head;
+    int position = 1;
+
+    printf("\nList:\n");
+    while (temp != NULL) {
+        printf("Item %d:  %d\t", position++, temp->data);
+        temp = temp->link;
+    }
+    printf("\n\n");
+}
+
+// Function to delete the entire list
+void deleteList(struct node **head) {
+    struct node *temp;
+    while (*head != NULL) {
+        temp = *head;
+        *head = (*head)->link;
+        free(temp);
+    }
+    printf("\nThe list has been emptied!\n\n");
+}
+
+// Function to end the program
+void endProg() {
+    printf("Exiting Program....\n");
+    exit(0);
+}
+
+// Main function
+int main() {
+    struct node *head = NULL; 
+    int choice;
+    int item;
+
+    printf("List MENU\n\n");
+    do {
+        printf("[1] Add Item\n[2] Delete Item\n[3] Display List\n[4] Delete List\n[0] Exit Program\nEnter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 0:
+                endProg();
+                break;
+            case 1:
+                add_Item(&head);
+                break;
+            case 2:
+                printf("Enter item to delete: ");
+                scanf("%d", &item);
+                deleteItem(&head, item);
+                break;
+            case 3:
+                displayList(head);
+                break;
+            case 4:
+                deleteList(&head);
+                break;
+            default:
+                printf("Invalid choice.\n");
+        }
+    } while (choice != 0);
+
+    return 0;
+}
